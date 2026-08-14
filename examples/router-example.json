@@ -1,0 +1,51 @@
+{
+  "model": "anthropic/claude-3.5-sonnet",
+  "provider": {
+    "order": ["anthropic", "openai", "google-ai-studio"],
+    "allow_fallbacks": true,
+    "max_price": {
+      "prompt": 5,
+      "completion": 15
+    },
+    "quantizations": ["fp8", "fp16"]
+  },
+  "plugins": [
+    {
+      "id": "response-healing"
+    }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "analysis_result",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["summary", "confidence", "tags"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "messages": [
+    {
+      "role": "user",
+      "content": "Analise o texto abaixo e devolva um JSON conforme o schema declarado em response_format: resumo, confiança (0-1) e tags.\n\nTEXTO: O OpenRouter é um gateway de API que unifica centenas de modelos de IA sob um único endpoint compatível com a API OpenAI, com roteamento automático entre providers por preço, latência e disponibilidade."
+    }
+  ],
+  "max_tokens": 512,
+  "temperature": 0
+}
