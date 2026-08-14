@@ -31,6 +31,8 @@ O núcleo abaixo (fluxo em passos + GOTCHAS) cobre o essencial de toda execuçã
 | [references/errors.md](references/errors.md) | Ao tratar erros: tabela `error_type` → HTTP → ação, rate limits, retries, erros em streaming, chave free |
 | [references/integrations.md](references/integrations.md) | Ao integrar num projeto: SDK OpenAI, SDK Anthropic (`/messages`), Claude Code via `ANTHROPIC_BASE_URL`, streaming |
 
+Ferramentas prontas do repo: `scripts/openrouter.sh` (CLI que embrulha os endpoints — `models`, `providers`, `prices`, `tps`, `suggest`, `chat`, `key`, `credits`; suporta `--dry-run` sem chave) e `examples/` (quickstart em Python/shell, exemplo de body de roteamento em `router-example.json` e parser de `usage`). Consulte-as antes de escrever curls à mão.
+
 ## Fluxo essencial (passo a passo)
 
 ### Passo 1 — Autenticar
@@ -163,7 +165,7 @@ Cada item: "NÃO faça X — o correto é Y". Leia todos ANTES de agir.
 
 **Parâmetros de request**
 
-13. **NÃO use effort `"min"`** — o enum de `reasoning.effort` é `max, xhigh, high, medium, low, minimal, none`; `reasoning_effort` top-level é `xhigh, high, medium, low, minimal, none`.
+13. **NÃO use effort `"min"`** — o enum de `reasoning.effort` é `max, xhigh, high, medium, low, minimal, none`; `reasoning_effort` top-level tem o MESMO enum (`max, xhigh, high, medium, low, minimal, none`).
 14. **NÃO leia `reasoning_tokens` no topo de `usage`** — está em `usage.completion_tokens_details.reasoning_tokens`; é contado e cobrado como token de saída.
 15. **NÃO use `prompt_cache_options.mode: "simple"`** — o único valor é `"explicit"`; caching implícito é comportamento do provider, não um mode.
 16. **NÃO use o plugin `pdf-input`** — o plugin correto é `file-parser` (com `pdf.engine`: `mistral-ocr` | `cloudflare-ai` | `native`).

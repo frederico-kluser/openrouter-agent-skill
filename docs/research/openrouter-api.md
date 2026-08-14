@@ -293,7 +293,7 @@ print(completion.choices[0].message.content)
 ```
 
 - **Parâmetros OpenAI suportados:** `temperature`, `top_p`, `top_k`, `max_tokens`, `max_completion_tokens`, `stop`, `stream`, `tools`, `tool_choice`, `parallel_tool_calls`, `seed`, `frequency_penalty`, `presence_penalty`, `repetition_penalty`, `logit_bias`, `logprobs`, `top_logprobs`, `min_p`, `top_a`, `response_format`, `structured_outputs`, `user`.
-- **Parâmetros extras OpenRouter** (via `extra_body` no SDK OpenAI): `models` (lista de fallbacks), `route`, `provider`, `transforms`, `plugins`, `reasoning`, `verbosity`, `web_search_options`, `debug`.
+- **Parâmetros extras OpenRouter** (via `extra_body` no SDK OpenAI): `models` (lista de fallbacks), `route`, `provider`, `transforms` **[NÃO CONFIRMADO — ausente no OpenAPI ao vivo 2026-08-14]**, `plugins`, `reasoning`, `verbosity`, `web_search_options`, `debug`.
 - **Parâmetros não suportados pelo modelo são ignorados silenciosamente:** "the parameter is ignored. The rest are forwarded to the underlying model API."
 - **Streaming:** `stream: true` funciona para **todos os modelos** (SSE, ver seção 5). Último chunk traz `usage` com `choices` vazio, seguido de `data: [DONE]`. Linhas de comentário SSE começando com `:` (ex.: `: OPENROUTER PROCESSING`) devem ser ignoradas; o docs recomenda um parser spec-compliant como `eventsource-parser`. Cancelamento via AbortController só funciona em streaming e com providers que suportam; caso contrário "the model will continue processing and you will be billed".
 - **Versioning:** sem pinning por data; v1 única e estável; changelog em `https://openrouter.ai/docs/changelog`.
@@ -394,7 +394,7 @@ Fonte: api_reference/errors-and-debugging + api_reference/streaming.
 | `models` | array de fallbacks (ex.: `["openai/gpt-4o", "mistralai/mixtral-8x22b-instruct"]`) |
 | `route` | `'fallback'` (**deprecated** — spec: "Use `providers.sort.partition` instead"; `'fallback'` mapeia para `'model'`) |
 | `provider` | objeto de preferências — ver abaixo |
-| `transforms` | transformações de mensagens |
+| `transforms` | **[NÃO CONFIRMADO]** — ausente no OpenAPI ao vivo 2026-08-14; a página "Message Transforms" documenta o plugin `context-compression`, não um param `transforms` (ver `routing-config.md` §14) |
 | `plugins` | `web`, `file-parser`, `response-healing`, `context-compression` |
 | `debug` | `{ echo_upstream_body: true }` — só com streaming |
 

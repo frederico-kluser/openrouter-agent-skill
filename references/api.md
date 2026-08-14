@@ -229,7 +229,7 @@ Formato Anthropic Messages API: suporta texto, imagens, PDFs, tools e extended t
 | `stop` | array | — | Para no primeiro token listado |
 | `tools` / `tool_choice` | array / string\|obj | — | Tool calling estilo OpenAI; `tool_choice`: `none`, `auto`, `required`, `{type,function:{name}}` |
 | `parallel_tool_calls` | bool | true | Só com `tools` |
-| `reasoning_effort` | enum | — | `xhigh, high, medium, low, minimal, none` |
+| `reasoning_effort` | enum | — | `max, xhigh, high, medium, low, minimal, none` (mesmo enum de `reasoning.effort`) |
 | `reasoning` | map | — | `{effort, max_tokens, exclude, enabled, context, mode}` — detalhes em `routing.md` |
 | `verbosity` | enum | medium | `low, medium, high, xhigh, max` |
 | `web_search_options` | map | — | Web search nativo |

@@ -30,6 +30,7 @@ Três modos. O recomendado é o **global via symlink**: um único `git pull` no 
 
 ```bash
 git clone https://github.com/frederico-kluser/openrouter-skill.git ~/Projects/openrouter-skill
+mkdir -p ~/.claude/skills ~/.agents/skills ~/.claude-deepseek/skills
 ln -s ~/Projects/openrouter-skill ~/.claude/skills/openrouter-skill
 ```
 
