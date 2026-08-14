@@ -1,0 +1,17 @@
+# Orquestração (estado local do orquestrador)
+.deep-orchestrator/
+
+# Chaves e segredos — nunca versionar
+.env
+.env.*
+
+# Arquivos de chave de API
+*.key
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node.js
+node_modules/
