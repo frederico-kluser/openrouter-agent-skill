@@ -1,4 +1,4 @@
-# openrouter-skill
+# openrouter-agent-skill
 
 > Agent skill que ensina agentes de LLM (Claude Code, opencode, Codex, Cursor, Gemini CLI) a usar o OpenRouter: buscar modelos e providers, forçar provider, preços e tokens/segundo e integrar o roteamento completo em projetos.
 
@@ -29,25 +29,25 @@ Três modos. O recomendado é o **global via symlink**: um único `git pull` no 
 ### 1. Global via symlink (recomendado)
 
 ```bash
-git clone https://github.com/frederico-kluser/openrouter-skill.git ~/Projects/openrouter-skill
+git clone https://github.com/frederico-kluser/openrouter-agent-skill.git ~/Projects/openrouter-agent-skill
 mkdir -p ~/.claude/skills ~/.agents/skills ~/.claude-deepseek/skills
-ln -s ~/Projects/openrouter-skill ~/.claude/skills/openrouter-skill
+ln -s ~/Projects/openrouter-agent-skill ~/.claude/skills/openrouter-agent-skill
 ```
 
 - **Claude Code** lê `~/.claude/skills/` — o symlink acima já basta.
 - **opencode, Codex, Cursor e Gemini CLI** leem `~/.agents/skills/` (o Claude Code **não** lê essa pasta):
 
 ```bash
-ln -s ~/Projects/openrouter-skill ~/.agents/skills/openrouter-skill
+ln -s ~/Projects/openrouter-agent-skill ~/.agents/skills/openrouter-agent-skill
 ```
 
 - Se você usa a variante **`claude-deepseek`** do Claude Code:
 
 ```bash
-ln -s ~/Projects/openrouter-skill ~/.claude-deepseek/skills/openrouter-skill
+ln -s ~/Projects/openrouter-agent-skill ~/.claude-deepseek/skills/openrouter-agent-skill
 ```
 
-> **NOTA:** o symlink aponta para o **diretório do repositório** (que contém `SKILL.md` na raiz), não para um subdiretório. Se o seu clone estiver em outro caminho, troque `~/Projects/openrouter-skill` pelo caminho real (`/caminho/do/repo`) em todos os comandos acima.
+> **NOTA:** o symlink aponta para o **diretório do repositório** (que contém `SKILL.md` na raiz), não para um subdiretório. Se o seu clone estiver em outro caminho, troque `~/Projects/openrouter-agent-skill` pelo caminho real (`/caminho/do/repo`) em todos os comandos acima.
 
 ### 2. Por projeto
 
@@ -55,9 +55,9 @@ Skill disponível apenas para o projeto corrente, em `.claude/skills/`:
 
 ```bash
 mkdir -p .claude/skills
-cp -r ~/Projects/openrouter-skill .claude/skills/openrouter-skill
+cp -r ~/Projects/openrouter-agent-skill .claude/skills/openrouter-agent-skill
 # ou symlink, para continuar atualizando junto com o clone:
-ln -s ~/Projects/openrouter-skill .claude/skills/openrouter-skill
+ln -s ~/Projects/openrouter-agent-skill .claude/skills/openrouter-agent-skill
 ```
 
 ### 3. Marketplace
@@ -66,7 +66,7 @@ O formato segue a especificação aberta [agentskills.io](https://agentskills.io
 
 ## Uso rápido
 
-Invoque `/openrouter-skill` no Claude Code, ou simplesmente peça em qualquer agente suportado. Perguntas que ativam a skill:
+Invoque `/openrouter-agent-skill` no Claude Code, ou simplesmente peça em qualquer agente suportado. Perguntas que ativam a skill:
 
 - "Busque modelos baratos com contexto 128k."
 - "Liste os providers de `deepseek/deepseek-chat` com preço e TPS."
@@ -81,7 +81,7 @@ scripts/openrouter.sh models --dry-run
 ## Estrutura do repositório
 
 ```
-openrouter-skill/
+openrouter-agent-skill/
 ├── SKILL.md                  # instruções da skill (< 500 linhas, progressive disclosure)
 ├── references/               # referências por tópico: api, routing, errors, integrations
 ├── scripts/

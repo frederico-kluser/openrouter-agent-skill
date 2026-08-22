@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# tests/smoke.sh — smoke tests da skill openrouter-skill
+# tests/smoke.sh — smoke tests da skill openrouter-agent-skill
 #
 # Cobre:
 #   1. bash -n em todos os .sh (scripts/ + examples/ + este próprio script)
@@ -313,7 +313,7 @@ t_dry_run_with_key() {
 
 # ---------------------------------------------------------------------------
 main() {
-  echo "== smoke tests: openrouter-skill =="
+  echo "== smoke tests: openrouter-agent-skill =="
   t_syntax
   t_pycompile
   t_json

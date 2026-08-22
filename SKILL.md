@@ -1,5 +1,5 @@
 ---
-name: openrouter-skill
+name: openrouter-agent-skill
 description: 'Ensina a usar a API do OpenRouter do início ao fim: buscar modelos e seus providers, consultar preços, tokens por segundo, latência e quantização por provider, forçar um provider específico, configurar roteamento (fallbacks, variantes, plugins, cache, auto-router, BYOK), tratar erros e rate limits, e integrar em projetos via SDK OpenAI, API Anthropic /messages, Claude Code ou streaming. Use quando o usuário quiser buscar modelos ou providers no OpenRouter, comparar preços, tokens por segundo ou latência, forçar um provider, montar roteamento, resolver erros de chave, créditos ou rate limit, ou integrar um app ao OpenRouter.'
 metadata:
   type: skill

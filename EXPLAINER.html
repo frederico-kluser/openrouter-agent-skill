@@ -7,7 +7,7 @@
 
   1. TOKENS INLINE  — substituição simples de string. Cada token {{NOME}} é
      trocado pelo valor real:
-       1.0.0  2026-08-14  main  Criação da agent skill <strong>openrouter-skill</strong> — pesquisa profunda (API OpenRouter, design de agent skills, roteamento/configuração) com verificação claim-a-claim do material do usuário contra os docs oficiais; construção (SKILL.md + references, CLI scripts/openrouter.sh, exemplos, README); validação adversarial em 3 ondas com testing subwave; publicação (repo público, About, symlinks globais).
+       1.0.0  2026-08-14  main  Criação da agent skill <strong>openrouter-agent-skill</strong> — pesquisa profunda (API OpenRouter, design de agent skills, roteamento/configuração) com verificação claim-a-claim do material do usuário contra os docs oficiais; construção (SKILL.md + references, CLI scripts/openrouter.sh, exemplos, README); validação adversarial em 3 ondas com testing subwave; publicação (repo público, About, symlinks globais).
        3  22  8
      Os tokens inline aparecem na navbar, no hero, nos cards de estatística,
      no rodapé e na tabela de placeholders da aba "Visão geral".
@@ -185,7 +185,7 @@
   <header class="explainer-hero rounded-4 p-4 p-md-5 mb-4">
     <span class="badge badge-accent mb-3"><i class="bi bi-clipboard-data me-1"></i>Relatório de execução</span>
     <h1 class="display-6 fw-semibold text-white mb-2">O que aconteceu nesta execução</h1>
-    <p class="lead text-white-50 mb-3">Criação da agent skill <strong>openrouter-skill</strong> — pesquisa profunda (API OpenRouter, design de agent skills, roteamento/configuração) com verificação claim-a-claim do material do usuário contra os docs oficiais; construção (SKILL.md + references, CLI scripts/openrouter.sh, exemplos, README); validação adversarial em 3 ondas com testing subwave; publicação (repo público, About, symlinks globais).</p>
+    <p class="lead text-white-50 mb-3">Criação da agent skill <strong>openrouter-agent-skill</strong> — pesquisa profunda (API OpenRouter, design de agent skills, roteamento/configuração) com verificação claim-a-claim do material do usuário contra os docs oficiais; construção (SKILL.md + references, CLI scripts/openrouter.sh, exemplos, README); validação adversarial em 3 ondas com testing subwave; publicação (repo público, About, symlinks globais).</p>
     <div class="d-flex flex-wrap gap-2">
       <span class="badge badge-accent">v1.0.0</span>
       <span class="badge badge-soft"><i class="bi bi-calendar3 me-1"></i>2026-08-14</span>
@@ -245,7 +245,7 @@
     <div class="tab-pane fade show active" id="pane-visao" role="tabpanel"
          aria-labelledby="tab-visao" tabindex="0" data-print-title="Visão geral">
       <h2 class="h4 pane-title">Resumo da execução</h2>
-      <p class="text-body-secondary">Criação da agent skill <strong>openrouter-skill</strong> — pesquisa profunda (API OpenRouter, design de agent skills, roteamento/configuração) com verificação claim-a-claim do material do usuário contra os docs oficiais; construção (SKILL.md + references, CLI scripts/openrouter.sh, exemplos, README); validação adversarial em 3 ondas com testing subwave; publicação (repo público, About, symlinks globais).</p>
+      <p class="text-body-secondary">Criação da agent skill <strong>openrouter-agent-skill</strong> — pesquisa profunda (API OpenRouter, design de agent skills, roteamento/configuração) com verificação claim-a-claim do material do usuário contra os docs oficiais; construção (SKILL.md + references, CLI scripts/openrouter.sh, exemplos, README); validação adversarial em 3 ondas com testing subwave; publicação (repo público, About, symlinks globais).</p>
 
       <div class="alert alert-primary d-flex gap-2" role="alert">
         <i class="bi bi-info-circle-fill flex-shrink-0"></i>
@@ -424,7 +424,7 @@
 <div class="card mb-3"><div class="card-header"><strong>Repo: vazio → skill publicada</strong></div><div class="card-body small">
   <div class="row">
     <div class="col-md-6"><span class="text-warning">ANTES</span><ul class="mb-0"><li>Diretório vazio, sem git</li><li>Sem skill, sem docs, sem ferramentas</li><li>Nenhuma publicação</li></ul></div>
-    <div class="col-md-6"><span class="text-success">DEPOIS</span><ul class="mb-0"><li>Skill completa (SKILL.md + references + CLI + exemplos + testes)</li><li>3 docs de pesquisa verificados contra docs oficiais + OpenAPI spec</li><li>Repo público em github.com/frederico-kluser/openrouter-skill, About configurado, symlinks globais ativos</li></ul></div>
+    <div class="col-md-6"><span class="text-success">DEPOIS</span><ul class="mb-0"><li>Skill completa (SKILL.md + references + CLI + exemplos + testes)</li><li>3 docs de pesquisa verificados contra docs oficiais + OpenAPI spec</li><li>Repo público em github.com/frederico-kluser/openrouter-agent-skill, About configurado, symlinks globais ativos</li></ul></div>
   </div>
 </div></div>
 <div class="card mb-3"><div class="card-header"><strong>Material do usuário → verificação claim-a-claim</strong></div><div class="card-body small">
@@ -528,7 +528,7 @@
   <li><strong>Estrutura:</strong> SKILL.md na RAIZ do repo — pré-condição do symlink global (o link aponta para o diretório que contém SKILL.md).</li>
   <li><strong>SDKs oficiais</strong> (@openrouter/sdk, @openrouter/agent): citados apenas por nome + link (proibido inventar API não pesquisada); caminho primário = SDK OpenAI com base_url.</li>
   <li><strong>Testes sem custo:</strong> CLI e smoke tests operam em dry-run sem chave (nenhum crédito gasto; --live opcional).</li>
-  <li><strong>GitHub:</strong> repo público "openrouter-skill" no perfil do usuário; About (description + tópicos) aplicado via gh repo edit no COMMIT-FINAL.</li>
+  <li><strong>GitHub:</strong> repo público "openrouter-agent-skill" no perfil do usuário; About (description + tópicos) aplicado via gh repo edit no COMMIT-FINAL.</li>
   <li><strong>Symlinks globais:</strong> 3 pontos de consumo (Claude Code, opencode/Codex/Cursor/Gemini, variante claude-deepseek), padrão deep-orchestrator (~/Projects → dirs de skills).</li>
   <li><strong>GOTCHAS datados preservados:</strong> os 21 gotchas e "411 modelos em 2026-08-14" são verificados e datados — a anti-checklist não os trata como erro.</li>
   <li><strong>Ordem de merge:</strong> skill-core → skill-tooling → repo-readme (README referencia arquivos das branches irmãs).</li>
