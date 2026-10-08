@@ -1,6 +1,6 @@
 ---
 name: openrouter-agent-skill
-description: 'Ensina a usar a API do OpenRouter do início ao fim: buscar modelos e seus providers, consultar preços, tokens por segundo, latência e quantização por provider, forçar um provider específico, configurar roteamento (fallbacks, variantes, plugins, cache, auto-router, BYOK), tratar erros e rate limits, e integrar em projetos via SDK OpenAI, API Anthropic /messages, Claude Code ou streaming. Use quando o usuário quiser buscar modelos ou providers no OpenRouter, comparar preços, tokens por segundo ou latência, forçar um provider, montar roteamento, resolver erros de chave, créditos ou rate limit, ou integrar um app ao OpenRouter.'
+description: 'Ensina a usar a API do OpenRouter do início ao fim: buscar modelos e seus providers, consultar preços, tokens por segundo, latência e quantização por provider, forçar um provider específico, configurar roteamento (fallbacks, variantes, plugins, cache, auto-router, BYOK), tratar erros e rate limits, integrar em projetos via SDK OpenAI, API Anthropic /messages, Claude Code ou streaming — incluindo ÁUDIO com ElevenLabs via OpenRouter (TTS, STT/Scribe, audio tags, clonagem de voz + BYOK) e o sistema de credenciais em terminal (verificar login de conta em memória, setup guiado, salvar variáveis de ambiente). Use quando o usuário quiser buscar modelos ou providers no OpenRouter, comparar preços, tokens por segundo ou latência, forçar um provider, montar roteamento, resolver erros de chave, créditos ou rate limit, integrar um app ao OpenRouter, gerar áudio/text-to-speech, transcrever áudio/speech-to-text, usar voz ou clonar voz (ElevenLabs), ou configurar/verificar chaves de conta.'
 metadata:
   type: skill
 ---
@@ -19,6 +19,10 @@ Dispare para tarefas como:
 - "Monte roteamento com fallbacks, variantes, plugins, cache, auto-router" — Passo 4 + [references/routing.md](references/routing.md)
 - "Erro 429/402/503" ou "rate limit" ao usar o OpenRouter — Passo 7 + [references/errors.md](references/errors.md)
 - "Integre o OpenRouter no meu projeto" — Passo 5 + [references/integrations.md](references/integrations.md)
+- "Gere áudio com a voz da ElevenLabs" / "text-to-speech" / "narração com emoção (audio tags)" — Passo 8 + [references/audio-elevenlabs.md](references/audio-elevenlabs.md)
+- "Transcreva este áudio" / "speech-to-text" / "diarize os falantes" — Passo 8 + [references/audio-elevenlabs.md](references/audio-elevenlabs.md)
+- "Clone uma voz" / "use minha voz clonada" / "BYOK ElevenLabs" — Passo 8 + [references/audio-elevenlabs.md](references/audio-elevenlabs.md)
+- "Temos o login/credenciais dessa conta?" / "configure a chave e salve" / "puxe os dados da conta" — Passo 8.1 (`scripts/elevenlabs.sh check|setup|account`)
 
 ## Como usar esta skill (navegação)
 
@@ -30,8 +34,9 @@ O núcleo abaixo (fluxo em passos + GOTCHAS) cobre o essencial de toda execuçã
 | [references/routing.md](references/routing.md) | Ao configurar roteamento: objeto `provider` completo (campo→tipo→default), variantes, fallbacks, plugins, caching, auto-router, BYOK, service tiers, ZDR |
 | [references/errors.md](references/errors.md) | Ao tratar erros: tabela `error_type` → HTTP → ação, rate limits, retries, erros em streaming, chave free |
 | [references/integrations.md](references/integrations.md) | Ao integrar num projeto: SDK OpenAI, SDK Anthropic (`/messages`), Claude Code via `ANTHROPIC_BASE_URL`, streaming |
+| [references/audio-elevenlabs.md](references/audio-elevenlabs.md) | Para ÁUDIO: TTS/STT ElevenLabs, modelos e preços, response_format, chunking, audio tags, provider passthrough, clonagem de voz + BYOK, erros de binário, credenciais/conta |
 
-Ferramentas prontas do repo: `scripts/openrouter.sh` (CLI que embrulha os endpoints — `models`, `providers`, `prices`, `tps`, `suggest`, `chat`, `key`, `credits`; suporta `--dry-run` sem chave) e `examples/` (quickstart em Python/shell, exemplo de body de roteamento em `router-example.json` e parser de `usage`). Consulte-as antes de escrever curls à mão.
+Ferramentas prontas do repo: `scripts/openrouter.sh` (CLI que embrulha os endpoints — `models`, `providers`, `prices`, `tps`, `suggest`, `chat`, `key`, `credits`; suporta `--dry-run` sem chave), `scripts/elevenlabs.sh` (CLI de áudio + credenciais — `check`, `setup`, `account`, `models`, `tts`, `stt`, `voices`; `--dry-run` e `--json` globais) e `examples/` (quickstart em Python/shell, exemplo de body de roteamento em `router-example.json` e parser de `usage`). Consulte-as antes de escrever curls à mão.
 
 ## Fluxo essencial (passo a passo)
 
@@ -41,6 +46,7 @@ Ferramentas prontas do repo: `scripts/openrouter.sh` (CLI que embrulha os endpoi
 - Header em toda request: `Authorization: Bearer <OPENROUTER_API_KEY>`.
 - Headers opcionais de attribution: `HTTP-Referer` (URL do app), `X-OpenRouter-Title` (nome do app; alias `X-Title` aceito), `X-OpenRouter-Categories`.
 - **Nunca commitar a chave** (ver GOTCHAS e [references/integrations.md](references/integrations.md) seção 7). Leia de `OPENROUTER_API_KEY` no ambiente (`.env` fora do git).
+- **Antes de pedir a chave ao usuário, verifique se já a temos em memória**: `scripts/elevenlabs.sh check` varre ambiente → `./.env` → `~/.secrets` → `~/.zshenv` → `~/.dsh/.credentials.yaml` → memória CoALA e mostra status + como puxar cada variável. Se faltar, o `setup` guiado configura e **salva as variáveis de ambiente** (Passo 8.1).
 
 ### Passo 2 — Buscar modelos
 
@@ -138,6 +144,33 @@ Tudo isso em detalhe (JS, Anthropic, CLI, streaming, segurança): [references/in
 - Erros do provider podem vir com **HTTP 200 e erro no body** (mid-stream em streaming) — use `error_type`, não só o status.
 - Tabela completa `error_type` → HTTP → ação: [references/errors.md](references/errors.md).
 
+### Passo 8 — Áudio com ElevenLabs (TTS/STT/clonagem) e credenciais em memória
+
+Endpoints dedicados (NÃO são `/chat/completions`): `POST /api/v1/audio/speech` (TTS → bytes de áudio no body) e `POST /api/v1/audio/transcriptions` (STT → JSON com `usage.cost`). Detalhe completo (modelos, limites, chunking, audio tags, passthrough): **[references/audio-elevenlabs.md](references/audio-elevenlabs.md)**.
+
+**8.1 — Credenciais: verificar em memória → setup guiado → puxar dados (tudo em terminal)**
+
+```bash
+scripts/elevenlabs.sh check      # temos o login? varre: ambiente → ./.env → ~/.secrets
+                                 # → ~/.zshenv → ~/.dsh/.credentials.yaml → memória CoALA
+                                 # (mostra status, fonte, valor mascarado e como puxar)
+scripts/elevenlabs.sh setup      # GUIA o usuário: pede a chave (oculto), valida o formato,
+                                 # testa o login real e SALVA as variáveis de ambiente
+                                 # em ~/.secrets (chmod 600) + export via ~/.zshenv
+scripts/elevenlabs.sh account    # PUXA os dados da conta: OpenRouter (limit/usage/créditos)
+                                 # + ElevenLabs (tier, caracteres, vozes)
+```
+
+Variáveis: `OPENROUTER_API_KEY` (obrigatória; `sk-or-v1-...`) e `ELEVENLABS_API_KEY` (opcional; necessária só para clonagem/BYOK; alias `ELEVENLABS_NATIVE_API_KEY`). **Nunca peça a chave ao usuário antes de rodar o `check`** — pode já estar salva.
+
+**8.2 — TTS:** `model` + `input` + `voice` (obrigatório — nome das 21 vozes embutidas ou `voice_id` de clone) + `response_format` (`mp3`|`pcm`; **o default da API é `pcm`** — declare sempre). Em terminal: `scripts/elevenlabs.sh tts "texto" --out f.mp3 [--voice sarah] [--model elevenlabs/eleven-v4-turbo]`. Valida `Content-Type` + `X-Generation-Id` (anti-corrupção binária).
+
+**8.3 — STT (Scribe):** áudio em Base64 dentro de JSON (`input_audio`), máx. 25 MB, upstream timeout 60 s (fatie áudios longos). `--diarize` + (`--speakers N` OU `--threshold`), `--tag-events`, `--no-verbatim`; custo sai em `usage.cost`. Ex.: `scripts/elevenlabs.sh stt reuniao.mp3 --diarize --speakers 2`.
+
+**8.4 — Audio tags e passthrough:** emoção via `[laughs]`, `[whispers]`, `[happily]`, `[British accent]`... no próprio `input` (a ElevenLabs rejeita SSML); hiperparâmetros via `provider.options.elevenlabs` (`seed`, `previous_text`/`next_text`, `voice_settings.stability/similarity_boost`). `speed` (0.7–1.2) só em multilingual-v2/flash — `eleven-v4` devolve 400.
+
+**8.5 — Clonagem de voz (híbrida, 3 fases):** (1) criar o clone na API NATIVA da ElevenLabs (IVC instantâneo ou PVC 6–24 h com consentimento) → guardar o `voice_id`; (2) configurar **BYOK** em https://openrouter.ai/settings/keys (Provider Keys → ElevenLabs); (3) inferir via `/audio/speech` com `voice: "<voice_id>"`. O OpenRouter não expõe treino de clones — só inferência. BYOK cobra o plano nativo da ElevenLabs + ~5% de taxa do OpenRouter.
+
 ## GOTCHAS — fatos que desafiam suposições
 
 Cada item: "NÃO faça X — o correto é Y". Leia todos ANTES de agir.
@@ -177,6 +210,17 @@ Cada item: "NÃO faça X — o correto é Y". Leia todos ANTES de agir.
 19. **NÃO trate o preço do modelo como fixo** — `pricing.prompt`/`pricing.completion` são POR TOKEN (strings USD, ex.: `"0.00003"`); `provider.max_price` é por MILHÃO de tokens; e o valor cobrado é o do provider selecionado (veja `/endpoints`), não o de lista.
 20. **NÃO espere que erros de provider venham sempre com HTTP não-200** — mid-stream eles chegam com 200 + `error` no chunk e `finish_reason: "error"`.
 21. **NÃO prometa volume ilimitado em modelos `:free`** — têm 20 req/min e 50 ou 1000 req/dia; o limiar é em CRÉDITOS comprados (10), não em dólares. `GET /api/v1/key` → `is_free_tier`.
+
+**Áudio (ElevenLabs)**
+
+22. **NÃO espere áudio no `/chat/completions`** — TTS é `POST /api/v1/audio/speech` (resposta = bytes brutos) e STT é `POST /api/v1/audio/transcriptions` (resposta = JSON); endpoints dedicados.
+23. **NÃO salve o body como `.mp3` sem checar status + `Content-Type`** — um payload inválido devolve HTTP 400 com corpo ZodError em JSON; gravado como `.mp3` vira "mídia corrompida" no player. Sucesso é `audio/mpeg` (mp3) ou `audio/pcm` (pcm). E **o default de `response_format` é `pcm`, não `mp3`** — declare sempre explicitamente.
+24. **NÃO omita o campo `voice`** — é obrigatório (nome das 21 vozes embutidas, case-insensitive, ou `voice_id` de clone); a omissão devolve erro de campo ausente.
+25. **NÃO envie `speed` para `eleven-v4`/`eleven-v4-turbo`** — rejeitam com HTTP 400; `speed` (0.7–1.2) só existe em `eleven-multilingual-v2` e família Flash. Em v4 use audio tags (`[rushed]`, `[drawn out]`) e pontuação.
+26. **NÃO use SSML nos modelos novos da ElevenLabs** — é rejeitado; a modulação é por Audio Tags em colchetes minúsculos (`[whispers]`, `[laughs]`, `[British accent]`), que **contam no limite de caracteres e são cobradas**.
+27. **NÃO divida texto longo no meio de palavra/frase** — fracione em fronteiras sintáticas (`\n\n`, `.`, `?`, `!`) e injete continuidade com `provider.options.elevenlabs.previous_text`/`next_text`; concatene PCM em memória ou MP3 via `ffmpeg -i "concat:..."`.
+28. **NÃO tente clonar voz só via OpenRouter** — a API dele não expõe treino/uploads: o clone nasce na API nativa da ElevenLabs (IVC/PVC), e a inferência com o `voice_id` só funciona com **BYOK** configurado (Settings → Provider Keys → ElevenLabs). PVC exige consentimento por captura de texto e treino de 6–24 h.
+29. **NÃO envie áudio STT com prefixo `data:audio/...;base64,`** — o Base64 vai "limpo" dentro do JSON (`input_audio.data`); há teto de **25 MB** por request e **upstream timeout de 60 s** (fatie palestras/aulas), e `num_speakers`/`diarization_threshold` são mutuamente exclusivos.
 
 ## Exemplos
 

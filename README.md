@@ -11,14 +11,17 @@ Uma **agent skill** (no padrão aberto de skills da Anthropic, spec [agentskills
 - **Forçar provider** via objeto `provider` (order/allow/ignore/sort);
 - **Integrar o OpenRouter em projeto** — drop-in do SDK OpenAI apontando para `https://openrouter.ai/api/v1`;
 - **Todas as configurações de roteamento**: objeto `provider`, variantes de modelo, `plugins[]`, fallbacks de modelos (`models[]`) e cache de respostas.
+- **Áudio com ElevenLabs via OpenRouter** — TTS (`/audio/speech`), STT/Scribe (`/audio/transcriptions`), audio tags, provider passthrough e **clonagem de voz com BYOK**;
+- **Credenciais em terminal** — verificar em memória se já temos o login de cada conta, setup guiado que salva as variáveis de ambiente e puxar dados da conta.
 
 Funciona em **Claude Code, opencode, Codex, Cursor e Gemini CLI** — a mesma pasta de skill servida em cada plataforma (ver [Instalação](#instalação)).
 
 ## Recursos
 
 - **`SKILL.md`** — instruções da skill em menos de 500 linhas, com *progressive disclosure*: o essencial na raiz, os detalhes carregados de `references/` somente quando o agente precisa.
-- **`references/`** — material de referência por tópico: API, roteamento, erros e integrações.
+- **`references/`** — material de referência por tópico: API, roteamento, erros, integrações e **áudio ElevenLabs** (`audio-elevenlabs.md`: modelos TTS/STT, limites, chunking, audio tags, clonagem/BYOK).
 - **`scripts/openrouter.sh`** — CLI auxiliar: `models`, `providers`, `prices`, `tps`, `suggest`, `chat`, `key`, `credits`. Suporta **dry-run sem chave** (mostra o que seria chamado sem bater na API).
+- **`scripts/elevenlabs.sh`** — CLI de áudio + credenciais: `check` (verifica em memória se temos o login de cada conta e como puxar), `setup` (guiado: valida e **salva as variáveis de ambiente**), `account` (puxa dados da conta), `models`, `tts`, `stt`, `voices`. Flags globais `--json` e `--dry-run`.
 - **`examples/`** — exemplos prontos: bash, Python com o SDK OpenAI, payload de roteamento e parse de `usage`.
 - **`docs/research/`** — pesquisa verificada em **2026-08-14** contra os docs oficiais e a OpenAPI spec, com afirmações não confirmadas marcadas como `[NÃO CONFIRMADO]`.
 
@@ -71,11 +74,24 @@ Invoque `/openrouter-agent-skill` no Claude Code, ou simplesmente peça em qualq
 - "Busque modelos baratos com contexto 128k."
 - "Liste os providers de `deepseek/deepseek-chat` com preço e TPS."
 - "Monte um payload forçando o provider X com fallback."
+- "Gere um áudio narrado com a voz da ElevenLabs" / "transcreva este arquivo de áudio" / "clone minha voz".
+- "Temos o login dessa conta?" / "configure a chave e salve no ambiente" / "puxe os dados da conta."
 
 Sem chave? Teste a CLI em **dry-run**, que mostra o que seria chamado sem tocar na API:
 
 ```bash
 scripts/openrouter.sh models --dry-run
+scripts/elevenlabs.sh tts "Olá mundo" --dry-run
+```
+
+Credenciais e áudio, tudo em terminal:
+
+```bash
+scripts/elevenlabs.sh check      # temos o login? (memória: env → .env → ~/.secrets → ~/.zshenv → ~/.dsh → CoALA)
+scripts/elevenlabs.sh setup      # guiado: pede, valida e SALVA as variáveis de ambiente
+scripts/elevenlabs.sh account    # puxa dados da conta (OpenRouter + ElevenLabs)
+scripts/elevenlabs.sh tts "Olá mundo" --out ola.mp3
+scripts/elevenlabs.sh stt reuniao.mp3 --diarize --speakers 2
 ```
 
 ## Estrutura do repositório
@@ -83,9 +99,10 @@ scripts/openrouter.sh models --dry-run
 ```
 openrouter-agent-skill/
 ├── SKILL.md                  # instruções da skill (< 500 linhas, progressive disclosure)
-├── references/               # referências por tópico: api, routing, errors, integrations
+├── references/               # referências por tópico: api, routing, errors, integrations, audio-elevenlabs
 ├── scripts/
-│   └── openrouter.sh         # CLI: models, providers, prices, tps, suggest, chat, key, credits
+│   ├── openrouter.sh         # CLI: models, providers, prices, tps, suggest, chat, key, credits
+│   └── elevenlabs.sh         # CLI áudio+credenciais: check, setup, account, models, tts, stt, voices
 ├── examples/                 # exemplos prontos: bash, Python (SDK OpenAI), payload, usage
 ├── docs/research/            # pesquisa verificada contra docs oficiais + OpenAPI spec
 └── README.md                 # este arquivo
@@ -94,14 +111,18 @@ openrouter-agent-skill/
 ## Configuração
 
 1. Crie uma chave de API em **https://openrouter.ai/keys** (formato `sk-or-v1-...`).
-2. Defina a chave no ambiente:
+2. Defina a chave no ambiente — ou deixe o **setup guiado** fazer tudo (valida, testa o login e salva):
 
 ```bash
+scripts/elevenlabs.sh setup        # recomendado — salva em ~/.secrets (chmod 600) + export via ~/.zshenv
+
+# ou manualmente:
 export OPENROUTER_API_KEY="sk-or-v1-..."
 # ou em um arquivo .env na raiz do projeto (a skill também lê .env)
 ```
 
-3. **Nunca commite a chave.** O repositório ignora `.env` e `.env.*` no `.gitignore`, e o GitHub faz *secret scanning* automático — chaves vazadas em repositórios públicos são detectadas e devem ser revogadas em **https://openrouter.ai/settings/keys**.
+3. **Opcional (clonagem de voz/BYOK):** crie uma chave em **https://elevenlabs.io/api-keys** e defina `ELEVENLABS_API_KEY` (o mesmo `setup` pergunta e salva); depois vincule-a no BYOK do OpenRouter (**Settings → Provider Keys → ElevenLabs**).
+4. **Nunca commite a chave.** O repositório ignora `.env` e `.env.*` no `.gitignore`, e o GitHub faz *secret scanning* automático — chaves vazadas em repositórios públicos são detectadas e devem ser revogadas em **https://openrouter.ai/settings/keys**.
 
 ## Documentação de pesquisa
 
